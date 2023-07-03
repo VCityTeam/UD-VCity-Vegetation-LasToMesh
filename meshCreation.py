@@ -4,10 +4,12 @@ import math
 import time
 import open3d as o3d
 from alphashape import alphashape
-
+import convertPLYtoOBJ as PLYConverter
 
 
 startProg = time.time()
+
+PLYConverter.clearFolders()
 
 las = laspy.read('ExampleData.las')
 
@@ -532,14 +534,16 @@ geom = o3d.geometry.PointCloud()
 
 for index in islands:
     if(len(islands[index]) > 3):
-        if(len(islands[index]) < 1000):
+        if(len(islands[index]) < 700):
             geom.points = o3d.utility.Vector3dVector(islands[index])
             hull, _ = geom.compute_convex_hull()
             o3d.io.write_triangle_mesh("./islets_convex/hull_"+ str(index) +".ply", hull)
         else:
             alpha = 0.2
             alphashapeTree = alphashape([point for point in islands[index]], alpha)
-            alphashapeTree.export("./islets_convex/obj/mesh_"+ str(index) +".obj")
+            alphashapeTree.fill_holes()
+            alphashapeTree.fix_normals()
+            alphashapeTree.export("./islets_convex/obj/alpha_"+ str(index) +".obj")
 
 
 
@@ -567,3 +571,5 @@ with open('outputIslet.txt', 'w') as f:
 end = time.time()
 print("Finished writing of output file in " + str(end - start) + " seconds") # time in seconds
 print("Finished execution in " + str(end - startProg) + " seconds") # time in seconds
+
+PLYConverter.convert()
