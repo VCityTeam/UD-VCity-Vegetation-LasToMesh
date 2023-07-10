@@ -31,6 +31,8 @@ pcFiltered.points = las.points[las.classification == 5]
 
 
 point_data = np.stack([pcFiltered.x, pcFiltered.y, pcFiltered.z], axis=0).transpose((1, 0))
+point_data_color = np.stack([pcFiltered.red, pcFiltered.green, pcFiltered.blue], axis=0).transpose((1, 0))
+point_data_color_normalized = point_data_color/255
 
 
 xmax, ymax, zmax = np.max(point_data, axis=0)
@@ -512,6 +514,9 @@ start = time.time()
 print("Starting separating islets")
 
 islands = {}
+islands_color = {}
+islands_color_normalized = {}
+
 
 for i in range(indexes.shape[0]):
     xi = indexes[i,0]+1
@@ -521,8 +526,16 @@ for i in range(indexes.shape[0]):
         
         if cellsIsletIndex[xi][yi] not in islands:
             islands[cellsIsletIndex[xi][yi]] = []
+            islands_color[cellsIsletIndex[xi][yi]] = []
+            islands_color_normalized[cellsIsletIndex[xi][yi]] = []
         
         islands[cellsIsletIndex[xi][yi]].append(point_data[i])
+        #islands_color[cellsIsletIndex[xi][yi]].append([0.01,0.9,0.01])
+        islands_color[cellsIsletIndex[xi][yi]].append(point_data_color[i])
+        islands_color_normalized[cellsIsletIndex[xi][yi]].append(point_data_color_normalized[i])
+
+        
+
 
 end = time.time()
 print("Finished separating islets in " + str(end - start) + " seconds") # time in seconds
@@ -533,18 +546,37 @@ print("Starting output of islets convex hull")
 geom = o3d.geometry.PointCloud()
 
 for index in islands:
-    if(len(islands[index]) > 3):
-        if(len(islands[index]) < 700):
+    if(len(islands[index]) > 8):
+        if(len(islands[index]) < 1000):
+            print("convex hull")
             geom.points = o3d.utility.Vector3dVector(islands[index])
             hull, _ = geom.compute_convex_hull()
-            o3d.io.write_triangle_mesh("./islets_convex/hull_"+ str(index) +".ply", hull)
+            colors = []
+            for vertice in np.asarray(hull.vertices):
+                i = np.where(islands[index] == vertice)[0][0]
+                colors.append(islands_color_normalized[index][i])
+            hull.vertex_colors = o3d.utility.Vector3dVector(colors)
+            #o3d.visualization.draw_geometries([hull])
+            o3d.io.write_triangle_mesh("./islets_convex/hull_"+ str(index) +".ply", hull, write_vertex_colors=True)
         else:
-            alpha = 0.2
-            alphashapeTree = alphashape([point for point in islands[index]], alpha)
+            alpha = 1-(math.log(len(islands[index]), 10)*1.6)/10
+            print("len : "+str(len(islands[index])))
+            print("alpha : " + str(alpha))
+            
+            
+            alphashapeTree = alphashape(islands[index], alpha)
             alphashapeTree.fill_holes()
             alphashapeTree.fix_normals()
+            
+            
+            colors = []
+            for point in alphashapeTree.vertices:    
+                i = np.where(islands[index] == point)[0][0]
+                colors.append(islands_color[index][i])
+            alphashapeTree.visual.vertex_colors = colors
+            
             alphashapeTree.export("./islets_convex/obj/alpha_"+ str(index) +".obj")
-
+            
 
 
 
