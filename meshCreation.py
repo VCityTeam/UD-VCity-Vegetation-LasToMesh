@@ -551,7 +551,6 @@ for index in islands:
             colors = []
             for vertice in np.asarray(hull.vertices):
                 colors.append(islands_color_normalized[MeshUtilities.pointToColor(vertice)])
-            print(colors)
             hull.vertex_colors = o3d.utility.Vector3dVector(colors)
             #o3d.visualization.draw_geometries([hull])
             o3d.io.write_triangle_mesh("./islets_convex/hull_"+ str(index) +".ply", hull, write_vertex_colors=True)
@@ -583,7 +582,6 @@ for index in islands:
             print("Finished coloring alpha shape in " + str(end - start) + " seconds") # time in seconds
 
             alphashapeTree.export("./islets_convex/obj/alpha_"+ str(index) +".obj")
-            
 
 
         
@@ -610,4 +608,4 @@ end = time.time()
 print("Finished writing of output file in " + str(end - start) + " seconds") # time in seconds
 print("Finished execution in " + str(end - startProg) + " seconds") # time in seconds
 
-PLYConverter.convert()
+PLYConverter.convert2()
