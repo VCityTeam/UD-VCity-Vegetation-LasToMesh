@@ -12,7 +12,7 @@ startProg = time.time()
 
 PLYConverter.clearFolders()
 
-las = laspy.read('ExampleData.las')
+las = laspy.read('ExampleDataBellecour.las')
 
 xmax=-math.inf
 xmin=math.inf
@@ -515,6 +515,7 @@ start = time.time()
 print("Starting separating islets")
 
 islands = {}
+islands_size = {}
 islands_color = {}
 islands_color_normalized = {}
 
@@ -528,6 +529,7 @@ for i in range(indexes.shape[0]):
             islands[cellsIsletIndex[xi][yi]] = []
   
         islands[cellsIsletIndex[xi][yi]].append(point_data[i])
+
         #islands_color[cellsIsletIndex[xi][yi]].append([0.01,0.9,0.01])
         islands_color[MeshUtilities.pointToColor(point_data[i])] = point_data_color[i]
         islands_color_normalized[MeshUtilities.pointToColor(point_data[i])] = point_data_color_normalized[i]
@@ -542,10 +544,18 @@ print("Starting output of islets convex hull/alpha shapes")
 
 geom = o3d.geometry.PointCloud()
 
+choice = ""
+
 for index in islands:
+
+    condition = cellsIsletIndex == index
+    islands_size[index] = np.count_nonzero(condition)
+    print(islands_size[index])
+
     if(len(islands[index]) > 8):
-        if(len(islands[index]) < 1000):
+        if(islands_size[index] < 50):
             print("convex hull")
+            
             geom.points = o3d.utility.Vector3dVector(islands[index])
             hull, _ = geom.compute_convex_hull()
             colors = []
@@ -554,7 +564,11 @@ for index in islands:
             hull.vertex_colors = o3d.utility.Vector3dVector(colors)
             #o3d.visualization.draw_geometries([hull])
             o3d.io.write_triangle_mesh("./islets_convex/hull_"+ str(index) +".ply", hull, write_vertex_colors=True)
+            
+            choice += str(islands_size[index]) + " convex hull\n"
+
         else:
+            
             alpha = 1-(math.log(len(islands[index]), 10)*1.6)/10
             print("len : "+str(len(islands[index])))
             print("alpha : " + str(alpha))
@@ -565,12 +579,9 @@ for index in islands:
             end = time.time()
             print("Finished creation of alpha shape in " + str(end - start) + " seconds") # time in seconds
             
-            start = time.time()
-            print("Starting fixing alpha shape")
             alphashapeTree.fill_holes()
             #alphashapeTree.fix_normals()
             end = time.time()
-            print("Finished fixing alpha shape in " + str(end - start) + " seconds") # time in seconds
             
             start = time.time()
             print("Starting coloring alpha shape")
@@ -582,7 +593,8 @@ for index in islands:
             print("Finished coloring alpha shape in " + str(end - start) + " seconds") # time in seconds
 
             alphashapeTree.export("./islets_convex/obj/alpha_"+ str(index) +".obj")
-
+            
+            choice += str(islands_size[index]) + " alpha shape\n"
 
         
 
@@ -594,6 +606,10 @@ start = time.time()
 print("Starting writing of output file")
 
 # Write all the lines in the obj file
+with open('choice.txt', 'w') as f:
+    for line in choice:
+        f.write(line)
+
 with open('output.obj', 'w') as f:
     for line in objfile:
         f.write(line)
