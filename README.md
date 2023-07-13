@@ -1,7 +1,5 @@
 ﻿# Vegetation
 
-This repo is linked to JPE's internship, read more in the [projet's page](https://github.com/VCityTeam/VCity/blob/master/Projects/Gamagora/VegetationInternship.md)
-
 ## Goal
 
 The goal of this project is to use open datas (for example the [LIDAR done for the city of Lyon](https://data.grandlyon.com/jeux-de-donnees/nuage-points-lidar-2018-metropole-lyon-format-laz/info)) to extract informations about the vegetation and transform it into a format easily convertible into 3DTile for an easy visualization in apps like [UD-Viz](https://github.com/VCityTeam/UD-Viz).  
