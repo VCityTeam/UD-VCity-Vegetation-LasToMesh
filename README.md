@@ -12,3 +12,14 @@ We will probably use more methods to define multiple LODs.
 ## Technology
  
 We're using Python scripts to process the point clouds. We're using some libraries such as [laspy](https://laspy.readthedocs.io/en/latest/), [Open3D](http://www.open3d.org/docs/release/index.html), [Alpha Shape Toolbox](https://alphashape.readthedocs.io/en/latest/readme.html) and [plyfile](https://github.com/dranjan/python-plyfile)
+
+## Install
+
+```bash
+git clone https://github.com/VCityTeam/UD-VCity-Vegetation-LasToMesh.git
+cd UD-VCity-Vegetation-LasToMesh
+
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt 
+```
