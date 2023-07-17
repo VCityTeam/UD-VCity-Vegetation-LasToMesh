@@ -554,48 +554,52 @@ for index in islands:
 
     if(len(islands[index]) > 8):
         if(islands_size[index] < 50):
-            print("convex hull")
-            
-            geom.points = o3d.utility.Vector3dVector(islands[index])
-            hull, _ = geom.compute_convex_hull()
-            colors = []
-            for vertice in np.asarray(hull.vertices):
-                colors.append(islands_color_normalized[MeshUtilities.pointToColor(vertice)])
-            hull.vertex_colors = o3d.utility.Vector3dVector(colors)
-            #o3d.visualization.draw_geometries([hull])
-            o3d.io.write_triangle_mesh("./islets_convex/hull_"+ str(index) +".ply", hull, write_vertex_colors=True)
-            
-            choice += str(islands_size[index]) + " convex hull\n"
+            try:
+                print("convex hull")
+                
+                geom.points = o3d.utility.Vector3dVector(islands[index])
+                hull, _ = geom.compute_convex_hull()
+                colors = []
+                for vertice in np.asarray(hull.vertices):
+                    colors.append(islands_color_normalized[MeshUtilities.pointToColor(vertice)])
+                hull.vertex_colors = o3d.utility.Vector3dVector(colors)
+                #o3d.visualization.draw_geometries([hull])
+                o3d.io.write_triangle_mesh("./islets_convex/hull_"+ str(index) +".ply", hull, write_vertex_colors=True)
+                
+                choice += str(islands_size[index]) + " convex hull\n"
+            except Exception:
+                choice += str(islands_size[index]) + " convex hull ERROR\n"
 
         else:
-            
-            alpha = 1-(math.log(len(islands[index]), 10)*1.6)/10
-            print("len : "+str(len(islands[index])))
-            print("alpha : " + str(alpha))
-            
-            start = time.time()
-            print("Starting creation of alpha shape")
-            alphashapeTree = alphashape(islands[index], alpha)
-            end = time.time()
-            print("Finished creation of alpha shape in " + str(end - start) + " seconds") # time in seconds
-            
-            alphashapeTree.fill_holes()
-            #alphashapeTree.fix_normals()
-            end = time.time()
-            
-            start = time.time()
-            print("Starting coloring alpha shape")
-            colors = []
-            for vertice in alphashapeTree.vertices:
-                colors.append(islands_color[MeshUtilities.pointToColor(vertice)])
-            alphashapeTree.visual.vertex_colors = colors
-            end = time.time()
-            print("Finished coloring alpha shape in " + str(end - start) + " seconds") # time in seconds
+            try:
+                alpha = 1-(math.log(len(islands[index]), 10)*1.6)/10
+                print("len : "+str(len(islands[index])))
+                print("alpha : " + str(alpha))
+                
+                start = time.time()
+                print("Starting creation of alpha shape")
+                alphashapeTree = alphashape(islands[index], alpha)
+                end = time.time()
+                print("Finished creation of alpha shape in " + str(end - start) + " seconds") # time in seconds
+                
+                alphashapeTree.fill_holes()
+                #alphashapeTree.fix_normals()
+                end = time.time()
+                
+                start = time.time()
+                print("Starting coloring alpha shape")
+                colors = []
+                for vertice in alphashapeTree.vertices:
+                    colors.append(islands_color[MeshUtilities.pointToColor(vertice)])
+                alphashapeTree.visual.vertex_colors = colors
+                end = time.time()
+                print("Finished coloring alpha shape in " + str(end - start) + " seconds") # time in seconds
 
-            alphashapeTree.export("./islets_convex/obj/alpha_"+ str(index) +".obj")
-            
-            choice += str(islands_size[index]) + " alpha shape\n"
-
+                alphashapeTree.export("./islets_convex/obj/alpha_"+ str(index) +".obj")
+                
+                choice += str(islands_size[index]) + " alpha shape\n"
+            except Exception:
+                choice += str(islands_size[index]) + " alpha shape ERROR\n"
         
 
 
