@@ -23,3 +23,8 @@ python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt 
 ```
+## Datas
+
+The input for this program is a classified, colored, las file. The vegetation needs to be classified on at least one of the 3 standard values (3, 4 or 5). The color needs to be in the standard las RGB channel.  
+  
+You can download large scale datas [here](https://data.grandlyon.com/jeux-de-donnees/nuage-points-lidar-2018-metropole-lyon-format-laz/info). Be careful, you'll often find laz files, the compressed format of las file. You'll need to use tools like lazip to get to the las format.
