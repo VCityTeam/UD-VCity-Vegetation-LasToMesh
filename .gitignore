@@ -5,3 +5,5 @@
 !*.md
 !.gitignore
 !requirements.txt
+!SampleDatas/
+!SampleDatas/*
