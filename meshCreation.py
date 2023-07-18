@@ -12,14 +12,14 @@ startProg = time.time()
 
 PLYConverter.clearFolders()
 
-las = laspy.read('ExampleDataBellecour.las')
+las = laspy.read('ExampleData.las')
 
 xmax=-math.inf
 xmin=math.inf
 ymax=-math.inf
 ymin=math.inf
 
-# Change the value to get a more 
+# Change the value to get a more precise representation
 cellSize = 2
 
 # Used to filter the point cloud (needs to be classified) 
@@ -32,9 +32,13 @@ pcFiltered.points = las.points[las.classification == 5]
 
 
 point_data = np.stack([pcFiltered.x, pcFiltered.y, pcFiltered.z], axis=0).transpose((1, 0))
+# RGB colors which values vary between 0 and 255
 point_data_color = np.stack([pcFiltered.red, pcFiltered.green, pcFiltered.blue], axis=0).transpose((1, 0))
+# If the color is coded on 16 bits, force it back to 8 bits
+if point_data_color[0][0] > 256:
+    point_data_color = point_data_color//256
+# RGB colors which values vary between 0 and 1
 point_data_color_normalized = point_data_color/255
-
 
 xmax, ymax, zmax = np.max(point_data, axis=0)
 xmin, ymin, zmin = np.min(point_data, axis=0)
@@ -568,6 +572,7 @@ for index in islands:
                 
                 choice += str(islands_size[index]) + " convex hull\n"
             except Exception:
+                print("[Warning] : error when creating the convex hull, aborting")
                 choice += str(islands_size[index]) + " convex hull ERROR\n"
 
         else:
@@ -598,7 +603,9 @@ for index in islands:
                 alphashapeTree.export("./islets_convex/obj/alpha_"+ str(index) +".obj")
                 
                 choice += str(islands_size[index]) + " alpha shape\n"
-            except Exception:
+            except Exception as exce:
+                print("[Warning] : error when creating the alphashape, aborting")
+                print(exce)
                 choice += str(islands_size[index]) + " alpha shape ERROR\n"
         
 
