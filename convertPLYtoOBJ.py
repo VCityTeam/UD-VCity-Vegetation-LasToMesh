@@ -40,7 +40,7 @@ def convert2(path):
                     f.write("\n")
 
 
+if __name__ == "__main__":
+    path = "./islets_convex/"
 
-path = "./islets_convex/"
-
-convert2(path)
+    convert2(path)
