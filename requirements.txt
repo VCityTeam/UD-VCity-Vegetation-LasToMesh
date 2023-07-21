@@ -1,6 +1,5 @@
 alphashape
 laspy
-meshio
 numpy
 open3d
 plyfile

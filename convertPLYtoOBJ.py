@@ -1,25 +1,14 @@
 from os import listdir, remove
 from os.path import isfile, join
-import meshio
 from plyfile import PlyData
 
-path = "./islets_convex/"
-path_output = "./islets_convex/obj/"
 
 
-def convert():
-    onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
-
-    for line in onlyfiles:
-        mesh = meshio.read(path+line)
-        mesh.write(path_output+line[:-3]+"obj")
-
-    print("Done !")
-
-def convert2():
+def convert2(path):
     """
     Converts the given .ply file to an .obj file
     """
+    path_output = path + "obj/"
     onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
 
     for line in onlyfiles:
@@ -51,15 +40,7 @@ def convert2():
                     f.write("\n")
 
 
-def clearFolders():
-    
-    onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
-    for file in onlyfiles:
-        remove(path+str(file))
-    
-    onlyfiles = [f for f in listdir(path_output) if isfile(join(path_output, f))]
-    for file in onlyfiles:
-        remove(path_output+str(file))
 
+path = "./islets_convex/"
 
-convert2()
+convert2(path)
