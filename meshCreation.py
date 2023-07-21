@@ -555,7 +555,6 @@ for index in islands:
 
     condition = cellsIsletIndex == index
     islands_size[index] = np.count_nonzero(condition)
-    print(islands_size[index])
     
     # If the island is too small, don't create a mesh for it
     if(len(islands[index]) > 8):
@@ -591,7 +590,9 @@ for index in islands:
                 # The closer you are to 1 the more details you'll have, risking having holes in the mesh.
                 # The closer you are to 0, the closer you'll be from the convex hull.
                 # The formula bellow reduce the alpha the more points you have in the island.
-                alpha = 1-(math.log(len(islands[index]), 10)*1.6)/10
+                alpha = 1-(math.log(len(islands[index]), 10)*1.8)/10
+                if(alpha < 0.01):
+                    alpha = 0.01
                 print("len : "+str(len(islands[index])))
                 print("alpha : " + str(alpha))
                 
@@ -623,8 +624,27 @@ for index in islands:
             except Exception as exce:
                 # Sometimes, error happens due to the shape of the point cloud (needs to be confirmed)
                 print("[Warning] : error when creating the alphashape, aborting")
-                # print(exce)
-                choice += str(islands_size[index]) + " alpha shape ERROR\n"
+                print(exce)
+                try:
+                    geom.points = o3d.utility.Vector3dVector(islands[index])
+                    hull, _ = geom.compute_convex_hull()
+                    
+                    # Reconnecting the color to the vertices
+                    colors = []
+                    for vertice in np.asarray(hull.vertices):
+                        colors.append(islands_color_normalized[MeshUtilities.pointToColor(vertice)])
+                    hull.vertex_colors = o3d.utility.Vector3dVector(colors)
+
+                    #o3d.visualization.draw_geometries([hull])
+                    
+                    # !!! Only able to write in ply, needs to be changed to skip the conversion step
+                    o3d.io.write_triangle_mesh("./islets_convex/hull_"+ str(index) +".ply", hull, write_vertex_colors=True)
+
+                    choice += str(islands_size[index]) + " alpha shape ERROR convex hull OK\n"
+                except Exception:
+                    choice += str(islands_size[index]) + " alpha shape ERROR convex hull ERROR\n"
+
+                
         
 
 
