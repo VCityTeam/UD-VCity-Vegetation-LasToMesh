@@ -2,4 +2,3 @@ alphashape
 laspy[laszip]
 numpy
 open3d
-plyfile
