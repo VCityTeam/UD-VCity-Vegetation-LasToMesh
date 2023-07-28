@@ -574,20 +574,12 @@ def main():
                 try:
                     print("convex hull")
                     
-                    # Creating the hull
-                    geom.points = o3d.utility.Vector3dVector(islands[index])
-                    hull, _ = geom.compute_convex_hull()
-                    
-                    # Reconnecting the color to the vertices
-                    colors = []
-                    for vertice in np.asarray(hull.vertices):
-                        colors.append(islands_color_normalized[MeshUtilities.pointToColor(vertice)])
-                    hull.vertex_colors = o3d.utility.Vector3dVector(colors)
+                    path = output_path+"hull_"+ str(index) +".obj"
 
-                    #o3d.visualization.draw_geometries([hull])
-                    
-                    MeshUtilities.exportHullInOBJ(hull.vertices, hull.vertex_colors, hull.triangles, output_path+"hull_"+ str(index) +".obj")
+                    MeshUtilities.createConvexHull(islands[index], islands_color_normalized, path)
+
                     choice += str(islands_size[index]) + " convex hull\n"
+
                 except Exception as exce:
                     # Sometimes, error happens due to the shape of the point cloud (needs to be confirmed)
                     print("[Warning] : error when creating the convex hull, aborting")
@@ -596,65 +588,64 @@ def main():
 
             else:
                 try:
-                    # Parameter between 1 and 0 dictating the level of detail of the alpha shape.
-                    # The closer you are to 1 the more details you'll have, risking having holes in the mesh.
-                    # The closer you are to 0, the closer you'll be from the convex hull.
-                    # The formula bellow reduce the alpha the more points you have in the island.
-                    alpha = 1-(math.log(len(islands[index]), 10)*1.8)/10
-                    if(alpha < 0.01):
-                        alpha = 0.01
-                    print("len : "+str(len(islands[index])))
-                    print("alpha : " + str(alpha))
-                    
-                    
-                    start = time.time()
-                    print("Starting creation of alpha shape")
-                    alphashapeTree = alphashape(islands[index], alpha)
-                    end = time.time()
-                    print("Finished creation of alpha shape in " + str(end - start) + " seconds") # time in seconds
-                    
-                    # Doesn't seem to affect to mesh much but isn't costly
-                    alphashapeTree.fill_holes()
-                    # Seems to only flip the normals, doesn't detect fine normals
-                    #alphashapeTree.fix_normals()
-                    alphashapeTree.vertex_normals = None
-                    end = time.time()
-                    
-                    start = time.time()
-                    print("Starting coloring alpha shape")
-                    # Reconnecting the color to the vertices
-                    colors = []
-                    for vertice in alphashapeTree.vertices:
-                        colors.append(islands_color[MeshUtilities.pointToColor(vertice)])
-                    alphashapeTree.visual.vertex_colors = colors
-                    end = time.time()
-                    print("Finished coloring alpha shape in " + str(end - start) + " seconds") # time in seconds
 
-                    alphashapeTree.export(output_path+"alpha_"+ str(index) +".obj")
+                    # Divide the island in layers based on the z axis
+                    foo, foo, zmax = np.max(islands[index], axis=0)
+                    foo, foo, zmin = np.min(islands[index], axis=0)
+                    nbLayers = 5
+                    margin = ((zmax-zmin)/nbLayers)/2
+
+                    for layer in range(1,(nbLayers+1)):
+                        thresholdmax = zmin + (((zmax-zmin)/nbLayers)*layer)
+                        thresholdmin = zmin + (((zmax-zmin)/(nbLayers))*(layer-1))
+                        layerPoints = []
+                        for point in islands[index]:
+                            if(point[2] > thresholdmin and point[2] < thresholdmax + margin):
+                                layerPoints.append(point)
+
+                        # Not enough points in the layer
+                        if len(layerPoints) < 6:
+                            continue
                         
+                        alpha = MeshUtilities.computeAlpha(islands[index])
+
+                        path = output_path+"alpha_"+ str(index) + "_" + str(layer) + ".obj"
+                        
+                        MeshUtilities.createAlphashape(layerPoints, alpha, islands_color, path)
                     
-                    choice += str(islands_size[index]) + " alpha shape\n"
+                    choice += str(islands_size[index]) + " sliced alpha shape\n"
                 except Exception as exce:
                     # Sometimes, error happens due to the shape of the point cloud (needs to be confirmed)
                     print("[Warning] : error when creating the alphashape, aborting")
                     print(exce)
                     try:
-                        geom.points = o3d.utility.Vector3dVector(islands[index])
-                        hull, _ = geom.compute_convex_hull()
-                        
-                        # Reconnecting the color to the vertices
-                        colors = []
-                        for vertice in np.asarray(hull.vertices):
-                            colors.append(islands_color_normalized[MeshUtilities.pointToColor(vertice)])
-                        hull.vertex_colors = o3d.utility.Vector3dVector(colors)
 
-                        #o3d.visualization.draw_geometries([hull])
-                        
-                        MeshUtilities.exportHullInOBJ(hull.vertices, hull.vertex_colors, hull.triangles, output_path+"hull_"+ str(index) +".obj")
+                        alpha = MeshUtilities.computeAlpha(islands[index])
+                        path = output_path+"alpha_"+ str(index) + ".obj"
 
-                        choice += str(islands_size[index]) + " alpha shape ERROR convex hull OK\n"
+                        MeshUtilities.createAlphashape(islands[index], alpha, islands_color, path)
+
+                        choice += str(islands_size[index]) + " sliced alpha shape ERROR alpha shape OK\n"
                     except Exception:
-                        choice += str(islands_size[index]) + " alpha shape ERROR convex hull ERROR\n"
+                        try:
+                            geom.points = o3d.utility.Vector3dVector(islands[index])
+                            hull, _ = geom.compute_convex_hull()
+                            
+                            # Reconnecting the color to the vertices
+                            colors = []
+                            for vertice in np.asarray(hull.vertices):
+                                colors.append(islands_color_normalized[MeshUtilities.pointToColor(vertice)])
+                            hull.vertex_colors = o3d.utility.Vector3dVector(colors)
+
+                            #o3d.visualization.draw_geometries([hull])
+                            
+                            MeshUtilities.exportHullInOBJ(hull.vertices, hull.vertex_colors, hull.triangles, output_path+"hull_"+ str(index) +".obj")
+
+                            choice += str(islands_size[index]) + " sliced alpha shape ERROR alpha shape ERROR convex hull OK\n"
+
+                        except Exception:
+                            return
+                        choice += str(islands_size[index]) + " sliced alpha shape ERROR alpha shape ERROR convex hull ERROR\n"
 
             
 
