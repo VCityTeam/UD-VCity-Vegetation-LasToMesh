@@ -6,6 +6,8 @@ import numpy as np
 import open3d as o3d
 import time
 import math
+import scipy
+import trimesh
 
 
 def pointToColor(point):
@@ -78,15 +80,25 @@ def createAlphashape(pointCloud, alpha, colors, path):
     start = time.time()
     print("Starting creation of alpha shape")
     alphashapeTree = alphashape(pointCloud, alpha)
+
+
     end = time.time()
     print("Finished creation of alpha shape in " + str(end - start) + " seconds") # time in seconds
     
     # Doesn't seem to affect to mesh much but isn't costly
     alphashapeTree.fill_holes()
-    # Seems to only flip the normals, doesn't detect fine normals
-    #alphashapeTree.fix_normals()
+
     end = time.time()
     
+    
+    start = time.time()
+    print("Starting repairing alpha shape's normals")
+
+    alphashapeTree = repairAlphaShapeNormals(alphashapeTree)
+
+    end = time.time()
+    print("Finished reparing alpha shape's normals in " + str(end - start) + " seconds") # time in seconds
+
     start = time.time()
     print("Starting coloring alpha shape")
     # Reconnecting the color to the vertices
@@ -98,4 +110,31 @@ def createAlphashape(pointCloud, alpha, colors, path):
     print("Finished coloring alpha shape in " + str(end - start) + " seconds") # time in seconds
 
     alphashapeTree.export(path)
+    
     return
+
+
+def repairAlphaShapeNormals(mesh: trimesh.Trimesh):
+    boundingCenter = (mesh.bounds[0]+mesh.bounds[1])/2
+
+    for index in range(mesh.faces.shape[0]):
+        faceIndexes = mesh.faces[index]
+        face = [mesh.vertices[faceIndexes[0]], mesh.vertices[faceIndexes[1]], mesh.vertices[faceIndexes[2]]]
+        normal = mesh.face_normals[index]
+        triangleCenter = (face[0] + face[1] + face[2])/3
+        if needToReverseFace(boundingCenter, triangleCenter, normal):
+            mesh.faces[index] = np.ascontiguousarray(np.flipud(mesh.faces[index]))
+
+    return mesh
+
+
+def needToReverseFace(boundingCenter, triangleCenter, normal):
+    direction = triangleCenter - boundingCenter
+    direction /= scipy.linalg.norm(direction)
+
+    res = np.dot(direction, normal)
+
+    if res>=0:
+        return False
+    else:
+        return True

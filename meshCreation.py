@@ -12,7 +12,7 @@ def main():
 
     parser = argparse.ArgumentParser(description="Transform the vegetation inside a classified point cloud into a set of meshes")
 
-    parser.add_argument("-i", "--input", help="Input las file (default ='./SampleDatas/ExampleDataDenseVegetation.las')", default="./SampleDatas/ExampleDataDenseVegetation.las")
+    parser.add_argument("-i", "--input", help="Input las file (default ='./SampleDatas/ExampleDataIsolatedTrees.las')", default="./SampleDatas/ExampleDataIsolatedTrees.las")
     parser.add_argument("-o", "--output", help="Output directory (default ='./output/')", default="./output/")
     parser.add_argument("-c", "--cellsize", help="Cell size (default = 2.0)", default=2.0, type=float)
     parser.add_argument("-v", "--verbose", help="Increase output verbosity", action="store_true")
@@ -593,7 +593,7 @@ def main():
                     foo, foo, zmax = np.max(islands[index], axis=0)
                     foo, foo, zmin = np.min(islands[index], axis=0)
                     nbLayers = 5
-                    margin = ((zmax-zmin)/nbLayers)/2
+                    margin = ((zmax-zmin)/nbLayers)/3
 
                     for layer in range(1,(nbLayers+1)):
                         thresholdmax = zmin + (((zmax-zmin)/nbLayers)*layer)
@@ -616,7 +616,7 @@ def main():
                     choice += str(islands_size[index]) + " sliced alpha shape\n"
                 except Exception as exce:
                     # Sometimes, error happens due to the shape of the point cloud (needs to be confirmed)
-                    print("[Warning] : error when creating the alphashape, aborting")
+                    print("[Warning] : error when creating the layered alphashape, aborting")
                     print(exce)
                     try:
 
@@ -626,20 +626,14 @@ def main():
                         MeshUtilities.createAlphashape(islands[index], alpha, islands_color, path)
 
                         choice += str(islands_size[index]) + " sliced alpha shape ERROR alpha shape OK\n"
-                    except Exception:
+                    except Exception as exce:
                         try:
-                            geom.points = o3d.utility.Vector3dVector(islands[index])
-                            hull, _ = geom.compute_convex_hull()
-                            
-                            # Reconnecting the color to the vertices
-                            colors = []
-                            for vertice in np.asarray(hull.vertices):
-                                colors.append(islands_color_normalized[MeshUtilities.pointToColor(vertice)])
-                            hull.vertex_colors = o3d.utility.Vector3dVector(colors)
+                            print("[Warning] : error when creating the alphashape, aborting")
+                            print(exce)
 
-                            #o3d.visualization.draw_geometries([hull])
-                            
-                            MeshUtilities.exportHullInOBJ(hull.vertices, hull.vertex_colors, hull.triangles, output_path+"hull_"+ str(index) +".obj")
+                            path = output_path+"hull_"+ str(index) +".obj"
+
+                            MeshUtilities.createConvexHull(islands[index], islands_color_normalized, path)
 
                             choice += str(islands_size[index]) + " sliced alpha shape ERROR alpha shape ERROR convex hull OK\n"
 
