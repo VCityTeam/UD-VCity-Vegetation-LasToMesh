@@ -8,6 +8,7 @@ import time
 import math
 import scipy
 import trimesh
+import triangulate
 
 
 def pointToColor(point):
@@ -75,6 +76,84 @@ def computeAlpha(pointCloud):
 
     return alpha
 
+def createExtruded2DAlphaShape(pointCloud, colors, alpha, path):
+    minZ = np.PINF
+    maxZ = np.NINF
+
+    for point in pointCloud:
+        if point[2] < minZ:
+            minZ = point[2]
+        if point[2] > maxZ:
+            maxZ = point[2]
+
+    start = time.time()
+    print("Starting creation of 2D alpha shape")
+
+    alphashapeTree = alphashape([x[:-1] for x in pointCloud], alpha)
+
+    end = time.time()
+    print("Finished creation of 2D alpha shape in " + str(end - start) + " seconds") # time in seconds
+
+    start = time.time()
+    print("Starting triangulation of 2D alpha shape")
+
+    triangles = triangulate.triangulate(alphashapeTree.exterior.coords[:-1])
+
+    index = 1
+    vertices = {}
+    obj = ""
+
+    for tri in triangles:
+        for vertex in tri:
+            if vertex not in vertices:
+                color = [0,0.5,0]
+                for point in pointCloud:
+                    if vertex[0]==point[0] and vertex[0]==point[0]:
+                        color = colors[pointToColor(point)]
+                        break        
+                obj += "v " + "{:.8f}".format(vertex[0]) + " " + "{:.8f}".format(vertex[1]) + " " + "{:.8f}".format(maxZ) + " "
+                obj += "{:.8f}".format(color[0]) + " " + "{:.8f}".format(color[1]) + " " + "{:.8f}".format(color[2]) + "\n"
+                vertices[vertex] = index
+                index += 1
+
+
+    for coord in vertices.keys():
+        color = [0,0.5,0]
+        for point in pointCloud:
+                    if coord[0]==point[0] and coord[0]==point[0]:
+                        color = colors[pointToColor(point)]
+                        break
+        obj += "v " + "{:.8f}".format(coord[0]) + " " + "{:.8f}".format(coord[1]) + " " + "{:.8f}".format(minZ) + " "
+        obj += "{:.8f}".format(color[0]) + " " + "{:.8f}".format(color[1]) + " " + "{:.8f}".format(color[2]) + "\n"
+
+        
+    for tri in triangles:
+        obj += "f"
+        for vertex in tri:
+            obj += " " + str(vertices[vertex])
+        obj += "\n" 
+
+
+    length = len(vertices.keys())
+
+
+    for i in vertices.values():
+        if i == length:
+            obj += "f " + str(i) + " " + str(i + length) + " " + str(length+1) + "\n"
+            obj += "f " + str(i) + " " + str(length+1) + " " + str(1) + "\n"
+        else:
+            obj += "f " + str(i) + " " + str(i + length) + " " + str((i + 1) + length) + "\n"
+            obj += "f " + str(i) + " " + str((i + 1) + length) + " " + str((i + 1)) + "\n"
+
+
+    with open(path, 'w') as f:
+            for line in obj:
+                f.write(line)
+    
+    end = time.time()
+    print("Finished triangulation of 2D alpha shape in " + str(end - start) + " seconds") # time in seconds
+
+
 def createAlphashape(pointCloud, alpha, colors, path):
     
     start = time.time()
@@ -138,3 +217,5 @@ def needToReverseFace(boundingCenter, triangleCenter, normal):
         return False
     else:
         return True
+    
+

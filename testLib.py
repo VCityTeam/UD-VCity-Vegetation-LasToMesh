@@ -2,6 +2,8 @@ import laspy
 import open3d as o3d
 import numpy as np
 from alphashape import alphashape
+import matplotlib.pyplot as plt
+import triangulate
 
 las = laspy.read('ExampleDataCutCut.las')
 
@@ -21,24 +23,89 @@ point_color = np.stack([las.red, las.green, las.blue, np.full(las.blue.shape, 25
 geom = o3d.geometry.PointCloud()
 geom.points = o3d.utility.Vector3dVector(point_data)
 
+minZ = np.PINF
+maxZ = np.NINF
+
+for point in point_data:
+    if point[2] < minZ:
+        minZ = point[2]
+    if point[2] > maxZ:
+        maxZ = point[2]
 
 #print(1-1/len(point_data))
-alpha = 0.001
-alphashapeTree = alphashape(point_data, alpha)
+alpha = 0.5
+print(point_data)
+alphashapeTree = alphashape(point_data[:,:-1], alpha)
 #alphashapeTree.remove_duplicate_faces()
 #alphashapeTree.remove_degenerate_faces()
-alphashapeTree.fill_holes()
-alphashapeTree.fix_normals()
+
+x,y = alphashapeTree.exterior.xy
+
+
+# plt.plot(x,y)
+# plt.show()
+
+triangles = triangulate.triangulate(alphashapeTree.exterior.coords[:-1])
+
+index = 1
+vertices = {}
+obj = ""
+
+for tri in triangles:
+    for vertex in tri:
+        if vertex not in vertices:
+            obj += "v " + "{:.8f}".format(vertex[0]) + " " + "{:.8f}".format(vertex[1]) + " " + "{:.8f}".format(maxZ) + "\n"
+            vertices[vertex] = index
+            index += 1
+
+
+for coord in vertices.keys():
+    obj += "v " + "{:.8f}".format(coord[0]) + " " + "{:.8f}".format(coord[1]) + " " + "{:.8f}".format(minZ) + "\n"
+
+    
+for tri in triangles:
+    obj += "f"
+    for vertex in tri:
+        obj += " " + str(vertices[vertex])
+    obj += "\n" 
+
+
+length = len(vertices.keys())
+
+
+for i in vertices.values():
+    print(length)
+    if i == length:
+        obj += "f " + str(i) + " " + str(i + length) + " " + str(length+1) + "\n"
+        obj += "f " + str(i) + " " + str(length+1) + " " + str(1) + "\n"
+    else:
+        obj += "f " + str(i) + " " + str(i + length) + " " + str((i + 1) + length) + "\n"
+        obj += "f " + str(i) + " " + str((i + 1) + length) + " " + str((i + 1)) + "\n"
+
+print(obj)
+
+with open("./test.obj", 'w') as f:
+        for line in obj:
+            f.write(line)
+
+
+
+# alphashapeTree.fill_holes()
+
+"""
 colors = []
+intersect = set(point_data).intersection(alphashapeTree.vertices)
+print(intersect)
 for point in alphashapeTree.vertices:
     i = np.where(point_data == point)[0][0]
     colors.append(point_color[i])
 
 alphashapeTree.visual.vertex_colors = colors
+"""
 
-alphashapeTree.show()
+#alphashapeTree.show()
 
-alphashapeTree.export("./test.obj")
+#alphashapeTree.export("./test.obj")
 
 
 """

@@ -585,7 +585,12 @@ def main():
                     print("[Warning] : error when creating the convex hull, aborting")
                     print(exce)
                     choice += str(islands_size[index]) + " convex hull ERROR\n"
-
+            elif(islands_size[index] > 10000):
+                alpha = MeshUtilities.computeAlpha(islands[index])
+                
+                path = output_path+"alpha_extruded_"+ str(index) + ".obj"
+                        
+                MeshUtilities.createExtruded2DAlphaShape(islands[index], islands_color_normalized, alpha, path)
             else:
                 try:
 
