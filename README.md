@@ -50,5 +50,14 @@ Download datas, for example [here](https://data.grandlyon.com/portail/fr/jeux-de
 We're assuming you downloaded a file nammed ExampleData.las and that it is located in the same folder as the script.
 
 ```bash
+# if not already in venv
+. venv/Scripts/activate
 
+python meshCreation.py -i ExampleData.las -o .\outputFolder\ -c 2.0
 ```
+
+Note : the output folder does not need to existe beforehand but if it does all existing files will be wiped so be careful. It is therefore not advised to use '.\' as an argument ;)  
+
+What you'll get is a folder filled with obj files. You then can use 3D-model viewer to visualize your results or else use [py3dtilers](https://github.com/VCityTeam/py3dtilers) and more specifically the
+[obj-tiler](https://github.com/VCityTeam/py3dtilers/tree/master/py3dtilers/ObjTiler#obj-tiler) to transform the meshes into 3D tiles.  
+Finally, consider using [UD-Viz](https://github.com/VCityTeam/UD-Viz) to view the 3D-tiles inside a web app.
