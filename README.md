@@ -38,10 +38,10 @@ Small sample datas are included but you can download large scale datas [here](ht
 
 ## Parameters
 
-* -i / --input : The input las file. For the moment only a single file can be treated at a time.
-* -o / --output : The output folder.
-* -c / --cellsize : The size each cell must take inside the grid. The grid is used to split the point cloud into sub-clouds of near vegetation.
-* -v / --verbose : Increase the output verbosity. (Not yet implemented)
+* `-i` / `--input` : The input las file. For the moment only a single file can be treated at a time.
+* `-o` / `--output` : The output folder.
+* `-c` / `--cellsize` : The size each cell must take inside the grid. The grid is used to split the point cloud into sub-clouds of near vegetation.
+* `-v` / `--verbose` : Increase the output verbosity. (Not yet implemented)
 
 ## Usage
 
@@ -56,7 +56,7 @@ We're assuming you downloaded a file nammed ExampleData.las and that it is locat
 python meshCreation.py -i ExampleData.las -o .\outputFolder\ -c 2.0
 ```
 
-Note : the output folder does not need to existe beforehand but if it does all existing files will be wiped so be careful. It is therefore not advised to use '.\' as an argument ;)  
+Note : the output folder does not need to exist beforehand, but if it does, all existing files will be wiped out. So be careful. It is therefore not advised to use `.\` as an argument ;)  
 
 What you'll get is a folder filled with obj files. You then can use 3D-model viewer to visualize your results or else use [py3dtilers](https://github.com/VCityTeam/py3dtilers) and more specifically the
 [obj-tiler](https://github.com/VCityTeam/py3dtilers/tree/master/py3dtilers/ObjTiler#obj-tiler) to transform the meshes into 3D tiles.  
