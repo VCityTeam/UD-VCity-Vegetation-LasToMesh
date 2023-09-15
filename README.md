@@ -46,8 +46,9 @@ Small sample datas are included but you can download large scale datas [here](ht
 ## Usage
 
 Refer to the 'Install' section for the installation commands.  
-Download datas, for example [here](https://data.grandlyon.com/portail/fr/jeux-de-donnees/nuage-points-lidar-2018-metropole-lyon-format-laz/info).  
-We're assuming you downloaded a file nammed ExampleData.las and that it is located in the same folder as the script.
+Download datas, for example [here](https://data.grandlyon.com/portail/fr/jeux-de-donnees/nuage-points-lidar-2018-metropole-lyon-format-laz/info).    
+  
+For the following command, we're assuming you downloaded a file nammed ExampleData.las and that it is located in the same folder as the script.
 
 ```bash
 # if not already in venv
