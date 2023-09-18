@@ -5,10 +5,21 @@ import time
 import open3d as o3d
 from alphashape import alphashape
 import meshCreationUtilities as MeshUtilities
+import logging
 
 
 def vegetationToMesh(input_path, output_path, cellSize, verbose):
     startProg = time.time()
+
+
+
+    if verbose:
+        logging.basicConfig(level=logging.INFO, format='')
+    else:
+        logging.basicConfig(level=logging.WARNING, format='')
+
+    global log
+    log = logging.getLogger("my-logger")
 
     MeshUtilities.clearFolders(output_path)
 
@@ -53,11 +64,10 @@ def vegetationToMesh(input_path, output_path, cellSize, verbose):
     cellsZCount = np.zeros((cellCountWidth, cellCountHeight))
 
     end = time.time()
-    print("Finished initialisation in " + str(end - startProg) + " seconds") # time in seconds
-
+    log.info("Finished initialisation in " + str(end - startProg) + " seconds") # time in seconds
 
     start = time.time()
-    print("Starting init of cellZMean")
+    log.info("Starting init of cellZMean")
 
     indexes = np.ndarray(point_data.shape, np.int32)
 
@@ -86,11 +96,11 @@ def vegetationToMesh(input_path, output_path, cellSize, verbose):
                 cellsZmean[i][j] = cellsZmean[i][j]/cellsZCount[i][j]
 
     end = time.time()
-    print("Finished init of cellZMean in " + str(end - start) + " seconds") # time in seconds
+    log.info("Finished init of cellZMean in " + str(end - start) + " seconds") # time in seconds
 
 
     start = time.time()
-    print("Starting process of vertices")
+    log.info("Starting process of vertices")
 
     # This variable is used for the implementation of canopy reconstruction. It is no longer used so it has been commented out
     #
@@ -114,11 +124,11 @@ def vegetationToMesh(input_path, output_path, cellSize, verbose):
     # objfile += "\n"
 
     end = time.time()
-    print("Finished process of vertices in " + str(end - start) + " seconds") # time in seconds
+    log.info("Finished process of vertices in " + str(end - start) + " seconds") # time in seconds
 
 
     start = time.time()
-    print("Starting process of triangles")
+    log.info("Starting process of triangles")
 
     cellsIsletIndex = np.zeros((cellCountWidth, cellCountHeight), np.int32)
     index_islet = 1
@@ -475,10 +485,10 @@ def vegetationToMesh(input_path, output_path, cellSize, verbose):
             
 
     end = time.time()
-    print("Finished process of triangles in " + str(end - start) + " seconds") # time in seconds
+    log.info("Finished process of triangles in " + str(end - start) + " seconds") # time in seconds
 
     start = time.time()
-    print("Starting separating islets")
+    log.info("Starting separating islets")
 
     # Separate islands of points based on the island id calculated above
     # and put the informations in different structures
@@ -513,10 +523,10 @@ def vegetationToMesh(input_path, output_path, cellSize, verbose):
 
 
     end = time.time()
-    print("Finished separating islets in " + str(end - start) + " seconds") # time in seconds
+    log.info("Finished separating islets in " + str(end - start) + " seconds") # time in seconds
 
     startoutput = time.time()
-    print("Starting output of islets convex hull/alpha shapes")
+    log.info("Starting output of islets convex hull/alpha shapes")
 
     # For debuging purposes
     choice = ""
@@ -532,7 +542,7 @@ def vegetationToMesh(input_path, output_path, cellSize, verbose):
             # If the island has an area of less than 50 cells, the mesh will be a convex hull, else it'll be an alpha shape 
             if(islands_size[index] < 50):
                 try:
-                    print("convex hull")
+                    log.info("convex hull")
                     
                     path = output_path+"hull_"+ str(index) +".obj"
 
@@ -543,8 +553,8 @@ def vegetationToMesh(input_path, output_path, cellSize, verbose):
                 except Exception as exce:
                     # Sometimes, error happens due to the shape of the point cloud
                     # we use the alpha shape algorithm instead
-                    print("[Warning] : error when creating the convex hull, aborting")
-                    print(exce)
+                    log.info("[Warning] : error when creating the convex hull, aborting")
+                    log.info(exce)
                     choice += str(islands_size[index]) + " convex hull ERROR\n"
             # If the island is too big, create an extruded 2D alpha shape
             elif(islands_size[index] > 10000):
@@ -589,8 +599,8 @@ def vegetationToMesh(input_path, output_path, cellSize, verbose):
                     choice += str(islands_size[index]) + " sliced alpha shape\n"
                 except Exception as exce:
                     # Sometimes, error happens due to the shape of the point cloud (needs to be confirmed)
-                    print("[Warning] : error when creating the layered alphashape, aborting")
-                    print(exce)
+                    log.info("[Warning] : error when creating the layered alphashape, aborting")
+                    log.info(exce)
                     try:
                         # Simple alpha shape
 
@@ -602,8 +612,8 @@ def vegetationToMesh(input_path, output_path, cellSize, verbose):
                         choice += str(islands_size[index]) + " sliced alpha shape ERROR alpha shape OK\n"
                     except Exception as exce:
                         try:
-                            print("[Warning] : error when creating the alphashape, aborting")
-                            print(exce)
+                            log.info("[Warning] : error when creating the alphashape, aborting")
+                            log.info(exce)
                             # If even the simple alpha shape failed, try creating a convex hull
 
                             path = output_path+"hull_"+ str(index) +".obj"
@@ -620,10 +630,10 @@ def vegetationToMesh(input_path, output_path, cellSize, verbose):
 
 
     end = time.time()
-    print("Finished output of islets convex hull/alpha shapes in " + str(end - startoutput) + " seconds") # time in seconds
+    log.info("Finished output of islets convex hull/alpha shapes in " + str(end - startoutput) + " seconds") # time in seconds
 
     start = time.time()
-    print("Starting writing of output file")
+    log.info("Starting writing of output file")
     
     # For debug
     #
@@ -644,8 +654,8 @@ def vegetationToMesh(input_path, output_path, cellSize, verbose):
     """
 
     end = time.time()
-    print("Finished writing of output file in " + str(end - start) + " seconds") # time in seconds
-    print("Finished execution in " + str(end - startProg) + " seconds") # time in seconds
+    log.info("Finished writing of output file in " + str(end - start) + " seconds") # time in seconds
+    log.info("Finished execution in " + str(end - startProg) + " seconds") # time in seconds
 
 """
 if __name__ == "__main__":

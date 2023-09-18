@@ -9,6 +9,7 @@ import math
 import scipy
 import trimesh
 import triangulate
+import meshCreation
 
 
 def pointToColor(point):
@@ -133,8 +134,8 @@ def computeAlpha(pointCloud):
     alpha = 1-(math.log(len(pointCloud), 10)*1.8)/10
     if(alpha < 0.01):
         alpha = 0.01
-    print("len : "+str(len(pointCloud)))
-    print("alpha : " + str(alpha))
+    meshCreation.log.info("len : "+str(len(pointCloud)))
+    meshCreation.log.info("alpha : " + str(alpha))
 
     return alpha
 
@@ -166,15 +167,15 @@ def createExtruded2DAlphaShape(pointCloud, colors, alpha, path):
             maxZ = point[2]
 
     start = time.time()
-    print("Starting creation of 2D alpha shape")
+    meshCreation.log.info("Starting creation of 2D alpha shape")
 
     alphashapeTree = alphashape([x[:-1] for x in pointCloud], alpha)
 
     end = time.time()
-    print("Finished creation of 2D alpha shape in " + str(end - start) + " seconds") # time in seconds
+    meshCreation.log.info("Finished creation of 2D alpha shape in " + str(end - start) + " seconds") # time in seconds
 
     start = time.time()
-    print("Starting triangulation of 2D alpha shape")
+    meshCreation.log.info("Starting triangulation of 2D alpha shape")
 
     triangles = triangulate.triangulate(alphashapeTree.exterior.coords[:-1])
 
@@ -187,12 +188,14 @@ def createExtruded2DAlphaShape(pointCloud, colors, alpha, path):
         for vertex in tri:
             if vertex not in vertices:
 
-                color = [0,0.5,0]
+                color = [0.46,0.49,0.39]
+                """
                 for point in pointCloud:
                     if vertex[0]==point[0] and vertex[1]==point[1]:
                         color = colors[pointToColor(point)]
                         break    
-
+                """
+                        
                 # Adding the top points
                 obj += "v " + "{:.8f}".format(vertex[0]) + " " + "{:.8f}".format(vertex[1]) + " " + "{:.8f}".format(maxZ) + " "
                 obj += "{:.8f}".format(color[0]) + " " + "{:.8f}".format(color[1]) + " " + "{:.8f}".format(color[2]) + "\n"
@@ -202,12 +205,14 @@ def createExtruded2DAlphaShape(pointCloud, colors, alpha, path):
 
     for coord in vertices.keys():
 
-        color = [0,0.5,0]
+        color = [0.46,0.49,0.39]
+        """
         for point in pointCloud:
                     if coord[0]==point[0] and coord[1]==point[1]:
                         color = colors[pointToColor(point)]
                         break
-
+        """
+                        
         # Adding the bottom points 
         # Note : it was done this way to have the bottom point at the top point index + the number of point in total at the top
         # e.g. The top point is stored at the index 2 and there are 10 points, the bottom corresponding point is stored at the index 12
@@ -240,7 +245,7 @@ def createExtruded2DAlphaShape(pointCloud, colors, alpha, path):
                 f.write(line)
     
     end = time.time()
-    print("Finished triangulation of 2D alpha shape in " + str(end - start) + " seconds") # time in seconds
+    meshCreation.log.info("Finished triangulation of 2D alpha shape in " + str(end - start) + " seconds") # time in seconds
 
 
 def createAlphashape(pointCloud, alpha, colors, path):
@@ -261,12 +266,12 @@ def createAlphashape(pointCloud, alpha, colors, path):
 
     """
     start = time.time()
-    print("Starting creation of alpha shape")
+    meshCreation.log.info("Starting creation of alpha shape")
     alphashapeTree = alphashape(pointCloud, alpha)
 
 
     end = time.time()
-    print("Finished creation of alpha shape in " + str(end - start) + " seconds") # time in seconds
+    meshCreation.log.info("Finished creation of alpha shape in " + str(end - start) + " seconds") # time in seconds
     
     # Doesn't seem to affect to mesh much but isn't costly
     alphashapeTree.fill_holes()
@@ -275,22 +280,22 @@ def createAlphashape(pointCloud, alpha, colors, path):
     
     
     start = time.time()
-    print("Starting repairing alpha shape's normals")
+    meshCreation.log.info("Starting repairing alpha shape's normals")
 
     alphashapeTree = repairAlphaShapeNormals(alphashapeTree)
 
     end = time.time()
-    print("Finished reparing alpha shape's normals in " + str(end - start) + " seconds") # time in seconds
+    meshCreation.log.info("Finished reparing alpha shape's normals in " + str(end - start) + " seconds") # time in seconds
 
     start = time.time()
-    print("Starting coloring alpha shape")
+    meshCreation.log.info("Starting coloring alpha shape")
     # Reconnecting the color to the vertices
     pointColors = []
     for vertice in alphashapeTree.vertices:
         pointColors.append(colors[pointToColor(vertice)])
     alphashapeTree.visual.vertex_colors = pointColors
     end = time.time()
-    print("Finished coloring alpha shape in " + str(end - start) + " seconds") # time in seconds
+    meshCreation.log.info("Finished coloring alpha shape in " + str(end - start) + " seconds") # time in seconds
 
     alphashapeTree.export(path)
     
