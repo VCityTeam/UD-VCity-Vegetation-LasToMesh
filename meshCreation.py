@@ -5,21 +5,10 @@ import time
 import open3d as o3d
 from alphashape import alphashape
 import meshCreationUtilities as MeshUtilities
-import argparse
 
-def main():
+
+def vegetationToMesh(input_path, output_path, cellSize, verbose):
     startProg = time.time()
-
-    parser = argparse.ArgumentParser(description="Transform the vegetation inside a classified point cloud into a set of meshes")
-
-    parser.add_argument("-i", "--input", help="Input las file (default ='./SampleDatas/ExampleDataIsolatedTrees.las')", default="./SampleDatas/ExampleDataIsolatedTrees.las")
-    parser.add_argument("-o", "--output", help="Output directory (default ='./output/')", default="./output/")
-    parser.add_argument("-c", "--cellsize", help="Cell size (default = 2.0)", default=2.0, type=float)
-    parser.add_argument("-v", "--verbose", help="Increase output verbosity", action="store_true")
-
-    args = parser.parse_args()
-    input_path = args.input
-    output_path = args.output
 
     MeshUtilities.clearFolders(output_path)
 
@@ -30,9 +19,6 @@ def main():
     xmin=math.inf
     ymax=-math.inf
     ymin=math.inf
-
-    # Change the value to get a more precise representation
-    cellSize = args.cellsize
 
     # Used to filter the point cloud (needs to be classified) 
 
@@ -661,6 +647,7 @@ def main():
     print("Finished writing of output file in " + str(end - start) + " seconds") # time in seconds
     print("Finished execution in " + str(end - startProg) + " seconds") # time in seconds
 
-
+"""
 if __name__ == "__main__":
     main()
+"""

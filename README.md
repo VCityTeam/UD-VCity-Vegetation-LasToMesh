@@ -54,7 +54,7 @@ For the following command, we're assuming you downloaded a file nammed ExampleDa
 # if not already in venv
 . venv/Scripts/activate
 
-python meshCreation.py -i ExampleData.las -o .\outputFolder\ -c 2.0
+python mainCLI.py -i ExampleData.las -o .\outputFolder\ -c 2.0
 ```
 
 Note : the output folder does not need to exist beforehand, but if it does, all existing files will be wiped out. So be careful. It is therefore not advised to use `.\` as an argument ;)  
