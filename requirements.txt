@@ -2,3 +2,5 @@ alphashape
 laspy[laszip]
 numpy
 open3d
+scipy
+trimesh
