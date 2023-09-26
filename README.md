@@ -38,10 +38,14 @@ Small sample datas are included but you can download large scale datas [here](ht
 
 ## Parameters
 
-* `-i` / `--input` : The input las file. For the moment only a single file can be treated at a time.
-* `-o` / `--output` : The output folder.
-* `-c` / `--cellsize` : The size each cell must take inside the grid. The grid is used to split the point cloud into sub-clouds of near vegetation.
-* `-v` / `--verbose` : Increase the output verbosity. (Not yet implemented)
+| Command               | Description                                                                                                                 | Default value                                | Example                           |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- | --------------------------------- |
+|  `-i` / `--input`     | The input las file. For the moment only a single file can be treated at a time.                                             | `./SampleDatas/ExampleDataIsolatedTrees.las` | `-i ./ExampleData.las`            |
+|  `-o` / `--output`    | The output folder. Created if non existing. <br> :warning: **The content of the folder will be deleted if not empty !**     | `./output/`                                  | `-o ./outputFolder/`              |
+|  `-c` / `--cellsize`  | The size each cell must take inside the grid. The grid is used to split the point cloud into sub-clouds of near vegetation. | `2.0`                                        | `-c 1.5`                          |
+|  `-v` / `--verbose`   | Increase the output verbosity.                                                                                              | None                                         | `-v` <br>(no additional argument) |
+
+
 
 ## Usage
 
