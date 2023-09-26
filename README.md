@@ -61,8 +61,10 @@ For the following command, we're assuming you downloaded a file nammed ExampleDa
 python mainCLI.py -i ExampleData.las -o .\outputFolder\ -c 2.0
 ```
 
-Note : the output folder does not need to exist beforehand, but if it does, all existing files will be wiped out. So be careful. It is therefore not advised to use `.\` as an argument ;)  
+Notes :
+* The messages 'Singular matrix. Likely caused by all points lying in an N-1 space.' might pop up, the script will still work normally
+* The output folder does not need to exist beforehand, but if it does, all existing files will be wiped out. So be careful. It is therefore not advised to use `.\` as an argument ;)  
 
-What you'll get is a folder filled with obj files. You then can use 3D-model viewer to visualize your results or else use [py3dtilers](https://github.com/VCityTeam/py3dtilers) and more specifically the
+What you'll get is a folder filled with obj files. You can then use 3D-model viewer to visualize your results or else use [py3dtilers](https://github.com/VCityTeam/py3dtilers) and more specifically the
 [obj-tiler](https://github.com/VCityTeam/py3dtilers/tree/master/py3dtilers/ObjTiler#obj-tiler) to transform the meshes into 3D tiles.  
 Finally, consider using [UD-Viz](https://github.com/VCityTeam/UD-Viz) to view the 3D-tiles inside a web app.
