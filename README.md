@@ -68,3 +68,7 @@ Notes :
 What you'll get is a folder filled with obj files. You can then use 3D-model viewer to visualize your results or else use [py3dtilers](https://github.com/VCityTeam/py3dtilers) and more specifically the
 [obj-tiler](https://github.com/VCityTeam/py3dtilers/tree/master/py3dtilers/ObjTiler#obj-tiler) to transform the meshes into 3D tiles.  
 Finally, consider using [UD-Viz](https://github.com/VCityTeam/UD-Viz) to view the 3D-tiles inside a web app.
+
+## Docker
+
+This repository is dockerized within [this other repository](https://github.com/VCityTeam/UD-VCity-Vegetation-LasToMesh-docker) 
