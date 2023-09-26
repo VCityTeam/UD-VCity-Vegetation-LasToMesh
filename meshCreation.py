@@ -656,6 +656,8 @@ def vegetationToMesh(input_path, output_path, cellSize, verbose):
     end = time.time()
     log.info("Finished writing of output file in " + str(end - start) + " seconds") # time in seconds
     log.info("Finished execution in " + str(end - startProg) + " seconds") # time in seconds
+    print('-------------')
+    print('Process finished !')
 
 """
 if __name__ == "__main__":
