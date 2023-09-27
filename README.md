@@ -2,7 +2,7 @@
 
 ## Presentation
 
-The goal of this project is to use open datas (for example the [LIDAR done for the city of Lyon](https://data.grandlyon.com/portail/fr/jeux-de-donnees/nuage-points-lidar-2018-metropole-lyon-format-laz/info)) to extract informations about the vegetation and transform it into multiple meshes that are easily convertible into 3DTiles for an easy visualization in apps like [UD-Viz](https://github.com/VCityTeam/UD-Viz).  
+The goal of this project is to use open datas (for example the [LIDAR done for the city of Lyon](https://data.grandlyon.com/portail/fr/jeux-de-donnees/nuage-points-lidar-2018-metropole-lyon-format-laz/info)) to extract information about the vegetation and transform it into multiple meshes that are easily convertible into 3DTiles for an easy visualization in apps like [UD-Viz](https://github.com/VCityTeam/UD-Viz).  
   
 In order for the script to work, you'll need a classified and colored point cloud in the laz/las format. The [LIDAR done for the city of Lyon](https://data.grandlyon.com/portail/fr/jeux-de-donnees/nuage-points-lidar-2018-metropole-lyon-format-laz/info) is a good example of data to work with.
 A 'cell size' parameter is requiered to split the point cloud into sub-clouds of close enough vegetation. 
