@@ -62,13 +62,15 @@ def vegetationToMesh(input_path, output_path, cellSize, verbose):
     # Init
     cellsZmean = np.zeros((cellCountWidth, cellCountHeight))
     cellsZCount = np.zeros((cellCountWidth, cellCountHeight))
+    cellsColorMean = np.ndarray([cellCountWidth, cellCountHeight, 3])
+    cellsNormalizedColorMean = np.ndarray([cellCountWidth, cellCountHeight, 3])
 
     end = time.time()
     log.info("Finished initialisation in " + str(end - startProg) + " seconds") # time in seconds
 
     start = time.time()
     log.info("Starting init of cellZMean")
-
+ 
     indexes = np.ndarray(point_data.shape, np.int32)
 
     # Used to convert spacial coordinates to tab index
@@ -87,6 +89,10 @@ def vegetationToMesh(input_path, output_path, cellSize, verbose):
         cellsZmean[xi][yi] += point_data[i,2]
         cellsZCount[xi][yi] += 1
 
+        # Sum of the colors in one cell
+        cellsColorMean[xi][yi] += point_data_color[i]
+        cellsNormalizedColorMean[xi][yi] += point_data_color_normalized[i]
+
 
 
     for i in range(cellsZmean.shape[0]):
@@ -94,6 +100,9 @@ def vegetationToMesh(input_path, output_path, cellSize, verbose):
             if(cellsZCount[i][j] > 0):
                 # Calculate the mean of height in one cell
                 cellsZmean[i][j] = cellsZmean[i][j]/cellsZCount[i][j]
+                # Same with colors
+                cellsColorMean[i][j] = cellsColorMean[i][j]/cellsZCount[i][j]
+                cellsNormalizedColorMean[i][j] = cellsNormalizedColorMean[i][j]/cellsZCount[i][j]
 
     end = time.time()
     log.info("Finished init of cellZMean in " + str(end - start) + " seconds") # time in seconds
@@ -507,18 +516,27 @@ def vegetationToMesh(input_path, output_path, cellSize, verbose):
     islands_color_normalized = {}
 
     for i in range(indexes.shape[0]):
+        # Translate the point index to grind index
         xi = indexes[i,0]+1
         yi = indexes[i,1]+1
 
+        # If the 
         if cellsIsletIndex[xi][yi] != 0:
             
             if cellsIsletIndex[xi][yi] not in islands:
                 islands[cellsIsletIndex[xi][yi]] = []
     
             islands[cellsIsletIndex[xi][yi]].append(point_data[i])
+            
+            # Each point has the mean of colors inside a cell
+            islands_color[MeshUtilities.pointToColor(point_data[i])] = cellsColorMean[xi][yi]
+            islands_color_normalized[MeshUtilities.pointToColor(point_data[i])] = cellsNormalizedColorMean[xi][yi]
 
-            islands_color[MeshUtilities.pointToColor(point_data[i])] = point_data_color[i]
-            islands_color_normalized[MeshUtilities.pointToColor(point_data[i])] = point_data_color_normalized[i]
+            # OR
+
+            # Each point has the color information provided with the LIDAR
+            # islands_color[MeshUtilities.pointToColor(point_data[i])] = point_data_color[i]
+            # islands_color_normalized[MeshUtilities.pointToColor(point_data[i])] = point_data_color_normalized[i]
             
 
 
